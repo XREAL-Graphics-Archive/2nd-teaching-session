@@ -35,6 +35,8 @@ Shader "URPtraining/PlanarMapping"
             {
                 float4 vertex : SV_POSITION;
                 float2 uv : TEXCOORD0;
+                float3 worldPos : TEXCOORD1;
+                float2 worlduv: TEXCOORD2;
             };
 
             Texture2D _MainTex;
@@ -46,13 +48,25 @@ Shader "URPtraining/PlanarMapping"
                 VertexOutput o;
                 o.vertex = TransformObjectToHClip(v.vertex.xyz);
                 o.uv = v.uv * _MainTex_ST.xy + _MainTex_ST.zw;
+                o.worldPos = TransformObjectToWorld(v.vertex.xyz);
+                o.worlduv = float2(o.worldPos.x, o.worldPos.z) * _MainTex_ST.xy + _MainTex_ST.zw;
                 return o;
             }
 
             half4 frag(VertexOutput i): SV_Target
             {
-                float4 color = _MainTex.Sample(sampler_MainTex, i.uv);
-                return color;
+                // float4 color = _MainTex.Sample(sampler_MainTex, i.uv);
+
+                // yz
+                // float3 c1 = _MainTex.Sample(sampler_MainTex, i.worldPos.yz).rgb;
+
+                // xz
+                float3 c2 = _MainTex.Sample(sampler_MainTex, i.worlduv).rgb;
+
+                // xy
+                // float3 c3 = _MainTex.Sample(sampler_MainTex, i.worldPos.xy).rgb;
+                
+                return half4(c2, 1);
             }
             ENDHLSL
         }
