@@ -1,4 +1,4 @@
-Shader "URPtraining/PlanarMapping"
+Shader "URPTraining/PlanarMapping"
 {
     Properties
     {
