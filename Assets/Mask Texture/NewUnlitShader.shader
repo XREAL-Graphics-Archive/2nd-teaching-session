@@ -3,7 +3,7 @@ Shader "URPtraining/MaskTexture"
     Properties
     {
         _MainTex ("Texture", 2D) = "white" {}
-        _MainTex02 ("Texture", 2D) = "white" {}
+        _MainTex2 ("Texture", 2D) = "white" {}
         
         _MaskTex ("Mask", 2D) = "white" {}
     }
@@ -64,8 +64,8 @@ Shader "URPtraining/MaskTexture"
                 float4 color2 = _MainTex2.Sample(sampler_MainTex, i.uv2);
                 float4 mask = _MaskTex.Sample(sampler_MainTex, i.uv);
 
-                float4 final = lerp(color, color2, mask.r);
-                return final;
+                float4 f = lerp(color, color2, mask.r);
+                return f;
             }
             ENDHLSL
         }
