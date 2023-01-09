@@ -1,4 +1,4 @@
-Shader "URPtraining/VertexAnimation"
+Shader "URPTraining/UVAnimation"
 {
     Properties
     {
@@ -45,13 +45,14 @@ Shader "URPtraining/VertexAnimation"
             {
                 VertexOutput o;
                 o.vertex = TransformObjectToHClip(v.vertex.xyz);
-                o.vertex.y += sin(v.vertex.x + _Time.x);
                 o.uv = v.uv * _MainTex_ST.xy + _MainTex_ST.zw;
+                // o.uv += frac(_Time.x);
                 return o;
             }
 
             half4 frag(VertexOutput i): SV_Target
             {
+                i.uv += frac(_Time.x);
                 float4 color = _MainTex.Sample(sampler_MainTex, i.uv);
                 return color;
             }

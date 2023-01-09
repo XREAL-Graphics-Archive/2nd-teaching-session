@@ -20,8 +20,8 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: New Material
-  m_Shader: {fileID: 4800000, guid: 93510df2882cc3c48ad4fd29bc65d850, type: 3}
+  m_Name: UVAnimation
+  m_Shader: {fileID: 4800000, guid: 356ed231e7860bf4e8cdc40ddf5a4738, type: 3}
   m_ValidKeywords: []
   m_InvalidKeywords: []
   m_LightmapFlags: 4
