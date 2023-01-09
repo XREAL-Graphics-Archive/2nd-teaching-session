@@ -58,15 +58,15 @@ Shader "URPtraining/PlanarMapping"
                 // float4 color = _MainTex.Sample(sampler_MainTex, i.uv);
 
                 // yz
-                // float3 c1 = _MainTex.Sample(sampler_MainTex, i.worldPos.yz).rgb;
+                // half4 c1 = _MainTex.Sample(sampler_MainTex, i.worldPos.yz);
 
                 // xz
-                float3 c2 = _MainTex.Sample(sampler_MainTex, i.worlduv).rgb;
+                half4 c2 = _MainTex.Sample(sampler_MainTex, i.worlduv);
 
                 // xy
-                // float3 c3 = _MainTex.Sample(sampler_MainTex, i.worldPos.xy).rgb;
+                // half4 c3 = _MainTex.Sample(sampler_MainTex, i.worldPos.xy);
                 
-                return half4(c2, 1);
+                return c2;
             }
             ENDHLSL
         }
