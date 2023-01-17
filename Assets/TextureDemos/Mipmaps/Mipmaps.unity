@@ -353,8 +353,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 90b7a2d75a7af864791fc18ddc6005c4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  camOutputTex: {fileID: 8400000, guid: 356549c0f680d5744b42f610e3295e42, type: 2}
+  camOutput: {fileID: 8400000, guid: 356549c0f680d5744b42f610e3295e42, type: 2}
   mipLvls: 4
+  _dst: {fileID: 0}
+  _mip: {fileID: 0}
 --- !u!1 &1222049861
 GameObject:
   m_ObjectHideFlags: 0

@@ -28,10 +28,12 @@ public class Mipmap : MonoBehaviour
     void Make(RenderTexture rt, int miplevel)
     {
         Texture2D copy = RTtoTex2D(rt);
-        // tex2d = copy;
         Texture2D dst = new Texture2D(copy.width, copy.height, TextureFormat.RGBA32, false, true);
-        Graphics.CopyTexture(copy, dst);
         
+        // copy original render texture
+        Graphics.CopyTexture(copy, dst);
+        // _dst = dst;
+
         // downsample
         for (int k = 1; k < miplevel; k++)
         {
