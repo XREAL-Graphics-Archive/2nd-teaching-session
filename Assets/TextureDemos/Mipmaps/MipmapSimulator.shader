@@ -24,29 +24,43 @@ Shader "MipmapSimulator"
                 float2 uv : TEXCOORD0;
             };
 
-            Texture2D _RenderTex;
+            // Texture2D _RenderTex;
             Texture2D _MIP;
             Texture2D _DST;
-            SamplerState sampler_RenderTex;
-            float4 _RenderTex_ST;
-            float4 _RenderTex_TexelSize;
+            SamplerState sampler_MIP;
+            float4 _MIP_ST;
+            float4 _MIP_TexelSize; // Vector4( 1/width, 1/height, width, height )
 
             v2f vert (appdata v)
             {
                 v2f o;
                 o.vertex = TransformObjectToHClip(v.vertex);
-                o.uv = v.uv * _RenderTex_ST.xy + _RenderTex_ST.zw;
+                o.uv = v.uv * _MIP_ST.xy + _MIP_ST.zw;
                 return o;
             }
 
             half4 frag (v2f i) : SV_Target
             {
                 // sample the texture
-                half4 col = _RenderTex.Sample(sampler_RenderTex, i.uv);
+                half4 col = 0;
+                ///////////////////////////////////////////////////////
+                float tcf = -0.5f; // tc correction factor
+
+                // sample from MIP
+                for(int k = 0 ; k < 4 ; k++)
+                {
+                    const int2 offset = int2(k>>1, k&1);
+                    // const float4 t = _MIP.Sample(sampler_MIP, i.uv + (tcf + offset) / _MIP_TexelSize.z);
+                    const float4 t = half4(i.uv + (tcf + offset) / _MIP_TexelSize.z, 0, 1);
+
+                    if(dot(half3(1,1,1), t.rgb) > 0) col += half4(t.rgb, 1);
+                }
+
+                // if(col.a > 0)
 
                 // sample mipmap
-                
                 return col;
+                return half4(i.uv, 0, 1);
             }
             ENDHLSL
         }

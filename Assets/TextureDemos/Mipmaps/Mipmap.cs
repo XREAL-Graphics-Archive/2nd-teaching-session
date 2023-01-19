@@ -13,7 +13,7 @@ public class Mipmap : MonoBehaviour
     private static int _renderTexID = Shader.PropertyToID("_RenderTex");
     private static int _dstID = Shader.PropertyToID("_DST");
     private static int _mipID = Shader.PropertyToID("_MIP");
-    
+
     // member variables for debugging
     [Header("Debug Params")]
     [SerializeField] Texture2D _dst;
@@ -30,41 +30,55 @@ public class Mipmap : MonoBehaviour
     void Make(RenderTexture rt, int miplevel)
     {
         Texture2D copy = RTtoTex2D(rt);
-        Texture2D dst = new Texture2D(copy.width, copy.height, TextureFormat.RGBA32, false, true);
+        Texture2D buffer = new Texture2D( // write to this tex
+                                copy.width >> 1, 
+                                copy.height >> 1, 
+                                TextureFormat.RGBA32, 
+                                false, 
+                                true);
+        Texture2D mip = new Texture2D( // source tex
+                                copy.width, 
+                                copy.height, 
+                                TextureFormat.RGBA32, 
+                                false, 
+                                true);
         
         // copy original render texture
-        Graphics.CopyTexture(copy, dst);
-        // _dst = dst;
+        Graphics.CopyTexture(copy, mip);
+        // _dst = buffer;
+        // return;
 
         // downsample
         for (int k = 1; k < miplevel; k++)
         {
-            // destination texture
-            dst = new Texture2D(
-                copy.width >> k, 
-                copy.height >> k, 
-                TextureFormat.RGBA32, 
-                false, 
-                true);
-            
             // finer mipmap as source
-            Texture2D mip = new Texture2D(
+            mip = new Texture2D(
                 copy.width >> k - 1, 
                 copy.height >> k - 1,
                 TextureFormat.RGBA32, 
                 false, 
                 true);
             
+            Graphics.CopyTexture(buffer, mip);
+            // Graphics.Blit(src, dst);
+            // destination texture
+            buffer = new Texture2D(
+                    copy.width >> k, 
+                    copy.height >> k, 
+                    TextureFormat.RGBA32, 
+                    false, 
+                    true);
+
             // bind textures to shader
-            Shader.SetGlobalTexture(_dstID, dst);
+            Shader.SetGlobalTexture(_dstID, buffer);
             Shader.SetGlobalTexture(_mipID, mip);
-            
+
             // check in inspector
-            _dst = dst;
+            _dst = buffer;
             _mip = mip;
             
             // get processed texture from shader
-            copy = (Texture2D)(Shader.GetGlobalTexture(_mipID));
+            buffer = (Texture2D)(Shader.GetGlobalTexture(_mipID));
         }
     }
     

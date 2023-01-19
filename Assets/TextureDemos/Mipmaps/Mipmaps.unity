@@ -791,7 +791,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   camOutput: {fileID: 8400000, guid: 356549c0f680d5744b42f610e3295e42, type: 2}
-  mipLvls: 4
+  mipLvls: 6
   _dst: {fileID: 0}
   _mip: {fileID: 0}
 --- !u!1 &1222049861
