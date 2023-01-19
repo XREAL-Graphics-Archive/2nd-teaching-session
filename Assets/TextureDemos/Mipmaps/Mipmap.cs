@@ -5,6 +5,7 @@ using UnityEngine;
 public class Mipmap : MonoBehaviour
 {
     // apply in inspector
+    // [SerializeField] Material mipmapMat;
     [SerializeField] RenderTexture camOutput; // camera output, the image to render
     [SerializeField] [Range(0, 7)] int mipLvls = 0; // max mip levels
     
@@ -18,7 +19,8 @@ public class Mipmap : MonoBehaviour
     [SerializeField] Texture2D _dst;
     [SerializeField] Texture2D _mip;
     
-    void Update()
+    // event function to take picture
+    public void Capture()
     {
         Shader.SetGlobalTexture(_renderTexID, camOutput);
         Make(camOutput, mipLvls);
