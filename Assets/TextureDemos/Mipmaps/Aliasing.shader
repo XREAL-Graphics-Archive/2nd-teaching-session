@@ -1,4 +1,4 @@
-Shader "MipmapSimulator"
+Shader "Aliasing"
 {
     SubShader
     {
@@ -42,31 +42,14 @@ Shader "MipmapSimulator"
 
             half4 frag (v2f i) : SV_Target
             {
-                // sample the texture
-                half4 col = 0;
-                ///////////////////////////////////////////////////////
-                float tcf = -0.5f; // tc correction factor
                 const int2 intUV = int2(i.uv * _MIP_TexelSize.z); // integer uvs
-                if(intUV.x % 2 == 0 && intUV.y % 2 == 0) return half4(1,1,1,1);
-                else discard;
 
-                // sample from MIP
-                for(int k = 0 ; k < 4 ; k++)
-                {
-                    const int2 offset = int2(k>>1, k&1);
-                    const float4 t = _MIP.Sample(sampler_MIP, i.uv + (tcf + offset) / _MIP_TexelSize.z);
-                    // const float4 t = half4(i.uv * lv + (tcf + offset) / _MIP_TexelSize.z, 0, 1);
+                if(intUV.x % 2 == 0 && intUV.y % 2 == 0)
+                    return half4(1,1,1,1);
 
-                    if(dot(half3(1,1,1), t.rgb) > 0) col += half4(t.rgb, 1);
-                }
+                discard;
 
-                if(col.a > 0) col /= col.a;
-
-                if(_MipEnabled == 0) col = _MIP.Sample(sampler_MIP, i.uv);
-
-                // sample mipmap
-                return col;
-                return half4(i.uv, 0, 1);
+                return half4(0,0,0,0); // guard statement for compile errors
             }
             ENDHLSL
         }
