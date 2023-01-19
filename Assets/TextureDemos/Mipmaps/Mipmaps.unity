@@ -825,7 +825,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   camOutput: {fileID: 8400000, guid: 356549c0f680d5744b42f610e3295e42, type: 2}
-  mipLvls: 6
+  mipLvls: 2
   mipEnabled: 1
   _dst: {fileID: 0}
   _mip: {fileID: 0}
@@ -863,7 +863,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   camOutput: {fileID: 8400000, guid: 356549c0f680d5744b42f610e3295e42, type: 2}
   mipLvls: 6
-  mipEnabled: 1
+  mipEnabled: 0
   _dst: {fileID: 0}
   _mip: {fileID: 0}
 --- !u!64 &747110586

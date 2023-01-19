@@ -9,11 +9,12 @@ public class Mipmap : MonoBehaviour
     [SerializeField] RenderTexture camOutput; // camera output, the image to render
     [SerializeField] [Range(0, 7)] int mipLvls = 0; // max mip levels
     [SerializeField] bool mipEnabled = true;
-    
+
     // shader property id
     private static int _renderTexID = Shader.PropertyToID("_RenderTex");
-    private static int _dstID = Shader.PropertyToID("_DST");
+    // private static int _dstID = Shader.PropertyToID("_DST");
     private static int _mipID = Shader.PropertyToID("_MIP");
+    private static int _mipLevelID = Shader.PropertyToID("_MipLevels");
     private static int _MipEnabled = Shader.PropertyToID("_MipEnabled");
 
     // member variables for debugging
@@ -34,6 +35,7 @@ public class Mipmap : MonoBehaviour
     {
         Texture2D copy = RTtoTex2D(rt);
         Shader.SetGlobalTexture(_mipID, copy);
+        Shader.SetGlobalInteger(_mipLevelID, mipLvls);
         // Texture2D buffer = new Texture2D( // write to this tex
         //                         copy.width, 
         //                         copy.height, 

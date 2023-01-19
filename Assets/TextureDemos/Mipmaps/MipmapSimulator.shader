@@ -29,6 +29,7 @@ Shader "MipmapSimulator"
             Texture2D _DST;
             SamplerState sampler_MIP;
             int _MipEnabled;
+            int _MipLevels;
             float4 _MIP_ST;
             float4 _MIP_TexelSize; // Vector4( 1/width, 1/height, width, height )
 
@@ -42,22 +43,27 @@ Shader "MipmapSimulator"
 
             half4 frag (v2f i) : SV_Target
             {
+                // return original texture if mip level is 0
+                if(_MipLevels == 0) return _MIP.Sample(sampler_MIP, i.uv);
+                
                 // sample the texture
                 half4 col = 0;
                 ///////////////////////////////////////////////////////
-                float tcf = -0.5f; // tc correction factor
+                // float tcf = -0.5f; // tc correction factor
                 const int2 intUV = int2(i.uv * _MIP_TexelSize.z); // integer uvs
-                if(intUV.x % 2 == 0 && intUV.y % 2 == 0) return half4(1,1,1,1);
-                else discard;
 
-                // sample from MIP
-                for(int k = 0 ; k < 4 ; k++)
+
+                for(int lv = 0; lv < _MipLevels ; lv++)
                 {
-                    const int2 offset = int2(k>>1, k&1);
-                    const float4 t = _MIP.Sample(sampler_MIP, i.uv + (tcf + offset) / _MIP_TexelSize.z);
-                    // const float4 t = half4(i.uv * lv + (tcf + offset) / _MIP_TexelSize.z, 0, 1);
+                    // sample from MIP
+                    for(int k = 0 ; k < 4 ; k++)
+                    {
+                        const int2 offset = int2(k>>1, k&1) * ((lv == 0 ? 1 : (1 << lv)));
+                        const float4 t = _MIP.Sample(sampler_MIP, (intUV + offset) / _MIP_TexelSize.z);
+                        // const float4 t = half4(i.uv * lv + (tcf + offset) / _MIP_TexelSize.z, 0, 1);
 
-                    if(dot(half3(1,1,1), t.rgb) > 0) col += half4(t.rgb, 1);
+                        if(dot(half3(1,1,1), t.rgb) > 0) col += half4(t.rgb, 1);
+                    }
                 }
 
                 if(col.a > 0) col /= col.a;
