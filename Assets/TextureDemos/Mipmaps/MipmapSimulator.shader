@@ -58,7 +58,8 @@ Shader "MipmapSimulator"
                     // sample from MIP
                     for(int k = 0 ; k < 4 ; k++)
                     {
-                        const int2 offset = int2(k>>1, k&1) * ((lv == 0 ? 1 : (1 << lv)));
+                        // const int2 offset = int2(k>>1, k&1) * ((lv == 0 ? 1 : (1 << lv))); // method 1
+                        const int2 offset = int2(k>>1, k&1) * (1 + (1<<lv)); // method 2
                         const float4 t = _MIP.Sample(sampler_MIP, (intUV + offset) / _MIP_TexelSize.z);
                         // const float4 t = half4(i.uv * lv + (tcf + offset) / _MIP_TexelSize.z, 0, 1);
 
