@@ -28,6 +28,7 @@ Shader "MipmapSimulator"
             Texture2D _MIP;
             Texture2D _DST;
             SamplerState sampler_MIP;
+            int _MipEnabled;
             float4 _MIP_ST;
             float4 _MIP_TexelSize; // Vector4( 1/width, 1/height, width, height )
 
@@ -50,13 +51,15 @@ Shader "MipmapSimulator"
                 for(int k = 0 ; k < 4 ; k++)
                 {
                     const int2 offset = int2(k>>1, k&1);
-                    // const float4 t = _MIP.Sample(sampler_MIP, i.uv + (tcf + offset) / _MIP_TexelSize.z);
-                    const float4 t = half4(i.uv + (tcf + offset) / _MIP_TexelSize.z, 0, 1);
+                    const float4 t = _MIP.Sample(sampler_MIP, i.uv + (tcf + offset) / _MIP_TexelSize.z);
+                    // const float4 t = half4(i.uv * lv + (tcf + offset) / _MIP_TexelSize.z, 0, 1);
 
                     if(dot(half3(1,1,1), t.rgb) > 0) col += half4(t.rgb, 1);
                 }
 
-                // if(col.a > 0)
+                if(col.a > 0) col /= col.a;
+
+                if(_MipEnabled == 0) col = _MIP.Sample(sampler_MIP, i.uv);
 
                 // sample mipmap
                 return col;
