@@ -42,8 +42,9 @@ public class Mipmap : MonoBehaviour
     // event function to take picture
     public void Capture()
     {
-        Make(camOutput, mipLevels);
-        Shader.SetGlobalTexture(_mipID, mipLevels == 0 ? camOutput : writeBuffer);
+        if (mipLevels > 0) 
+            Make(camOutput, mipLevels); // execute if mip level is above 0
+        Shader.SetGlobalTexture(_mipID, mipLevels == 0 ? camOutput : writeBuffer); // set output
     }
     
     // main function to create mipmaps
@@ -54,11 +55,14 @@ public class Mipmap : MonoBehaviour
         for (int k = 1; k <= miplevel; k++)
         {
             int mipResolution = Resolution >> k;
-            if (mipResolution <= 0) break;
+            if (mipResolution <= 0) break; // break at max possible mip level
             
             writeBuffer = new RenderTexture(mipResolution, mipResolution, 24);
             writeBuffer.enableRandomWrite = true;
             writeBuffer.Create();
+            
+            Debug.Log("readSourceTx: " + readSourceTx.width + " * " + readSourceTx.height
+            + ", writeBuffer: " + writeBuffer.width + " * " + writeBuffer.height);
             
             mipmapKernel.SetFloat("Resolution", Resolution * 1.0f); // float to convert tc from int to float
             mipmapKernel.SetTexture(0, "_ReadSourceTx", readSourceTx); // texture to read from
@@ -69,9 +73,9 @@ public class Mipmap : MonoBehaviour
                 writeBuffer.height / 8, 
                 1
             );
+
+            readSourceTx = RTtoTex2D(writeBuffer);
         }
-        
-        
     }
     
     // convert render texture to texture2D

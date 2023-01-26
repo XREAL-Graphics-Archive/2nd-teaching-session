@@ -19,6 +19,7 @@ void MipmapKernel (uint3 id : SV_DispatchThreadID)
     for(int k = 0 ; k < 4 ; k++)
     {
         const int2 offset = int2(k>>1, k&1);
+        // Need to use SampleLevel() in compute shader to sample texture. Same with vertex shaders.
         const float4 t = _ReadSourceTx.SampleLevel(sampler_ReadSourceTx, tc + (tcf+offset) / Resolution, 0);
         if(t.a > 0) color += float4(t.rgb, 1.0);
     }
