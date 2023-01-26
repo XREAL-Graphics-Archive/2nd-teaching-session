@@ -3,6 +3,7 @@
 
 // Create a RenderTexture with enableRandomWrite flag and set it
 // with cs.SetTexture
+Texture2D readSourceTx;
 RWTexture2D<float4> Result;
 float Resolution;
 
@@ -11,5 +12,5 @@ void MipmapKernel (uint3 id : SV_DispatchThreadID)
 {
     float2 tc = id.xy / Resolution;
 
-    // Result[id.xy] = float4(tc, 0, 1);
+    Result[id.xy] = float4(tc, 0, 1);
 }

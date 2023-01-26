@@ -10,44 +10,54 @@ public class Mipmap : MonoBehaviour
     [SerializeField] Camera captureCam;
     [SerializeField] ComputeShader mipmapKernel;
     [SerializeField] [Range(0, 7)] int mipLevels = 0; // max mip levels
-    RenderTexture camOutput; // camera output, the image to render
     [SerializeField] bool mipEnabled = true;
+    
+    RenderTexture camOutput; // camera output, the image to render
+    
+    RenderTexture writeBuffer; // texture to write in compute shader
+    int Resolution;
 
     // shader property id
-    private static int _renderTexID = Shader.PropertyToID("_RenderTex");
-    // private static int _dstID = Shader.PropertyToID("_DST");
     private static int _mipID = Shader.PropertyToID("_MIP");
-    private static int _mipLevelID = Shader.PropertyToID("_MipLevels");
-    private static int _MipEnabled = Shader.PropertyToID("_MipEnabled");
+    // private static int _renderTexID = Shader.PropertyToID("_RenderTex");
+    // private static int _dstID = Shader.PropertyToID("_DST");
+    // private static int _mipLevelID = Shader.PropertyToID("_MipLevels");
+    // private static int _MipEnabled = Shader.PropertyToID("_MipEnabled");
 
     // member variables for debugging
     [Header("Debug Params")]
     [SerializeField] Texture2D _dst;
     [SerializeField] Texture2D _mip;
 
-    private void Start()
+    private void Awake()
     {
         camOutput = new RenderTexture(1024, 1024, 24);
         camOutput.enableRandomWrite = true;
         camOutput.Create();
 
         captureCam.targetTexture = camOutput;
+        Resolution = camOutput.width;
     }
 
     // event function to take picture
     public void Capture()
     {
-        // Shader.SetGlobalInteger(_MipEnabled, mipEnabled ? 1 : 0);
         Make(camOutput, mipLevels);
-        Shader.SetGlobalTexture(_mipID, camOutput);
+        Shader.SetGlobalTexture(_mipID, writeBuffer);
     }
     
     // main function to create mipmaps
     void Make(RenderTexture rt, int miplevel)
     {
-        Texture2D copy = RTtoTex2D(rt);
-        mipmapKernel.SetFloat("Resolution", camOutput.width);
-        mipmapKernel.SetTexture(0, "Result", camOutput);
+        Texture2D readSourceTx = RTtoTex2D(rt);
+        
+        writeBuffer = new RenderTexture(Resolution >> miplevel, Resolution >> miplevel, 24);
+        writeBuffer.enableRandomWrite = true;
+        writeBuffer.Create();
+        
+        mipmapKernel.SetFloat("Resolution", Resolution * 1.0f); // float to convert tc from int to float
+        mipmapKernel.SetTexture(0, "readSourceTx", readSourceTx); // texture to read from
+        mipmapKernel.SetTexture(0, "Result", writeBuffer); // texture to write
         mipmapKernel.Dispatch(
             0, 
             camOutput.width / 8, 
