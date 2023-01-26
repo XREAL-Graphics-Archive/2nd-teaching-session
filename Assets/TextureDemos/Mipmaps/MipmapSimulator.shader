@@ -50,11 +50,11 @@ Shader "MipmapSimulator"
                 half4 col = 0;
                 ///////////////////////////////////////////////////////
                 // float tcf = -0.5f; // tc correction factor
-                const int2 intUV = int2(i.uv * _MIP_TexelSize.z); // integer uvs
-
 
                 for(int lv = 0; lv < _MipLevels ; lv++)
                 {
+                    const int2 intUV = int2(i.uv * _MIP_TexelSize.z); // integer uv for each level
+
                     // sample from MIP
                     for(int k = 0 ; k < 4 ; k++)
                     {

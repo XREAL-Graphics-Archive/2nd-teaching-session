@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -6,8 +7,10 @@ public class Mipmap : MonoBehaviour
 {
     // apply in inspector
     // [SerializeField] Material mipmapMat;
-    [SerializeField] RenderTexture camOutput; // camera output, the image to render
-    [SerializeField] [Range(0, 7)] int mipLvls = 0; // max mip levels
+    [SerializeField] Camera captureCam;
+    [SerializeField] ComputeShader mipmapKernel;
+    [SerializeField] [Range(0, 7)] int mipLevels = 0; // max mip levels
+    RenderTexture camOutput; // camera output, the image to render
     [SerializeField] bool mipEnabled = true;
 
     // shader property id
@@ -22,71 +25,36 @@ public class Mipmap : MonoBehaviour
     [SerializeField] Texture2D _dst;
     [SerializeField] Texture2D _mip;
 
+    private void Start()
+    {
+        camOutput = new RenderTexture(1024, 1024, 24);
+        camOutput.enableRandomWrite = true;
+        camOutput.Create();
+
+        captureCam.targetTexture = camOutput;
+    }
+
     // event function to take picture
     public void Capture()
     {
-        Shader.SetGlobalTexture(_renderTexID, camOutput);
-        Shader.SetGlobalInteger(_MipEnabled, mipEnabled ? 1 : 0);
-        Make(camOutput, mipLvls);
+        // Shader.SetGlobalInteger(_MipEnabled, mipEnabled ? 1 : 0);
+        Make(camOutput, mipLevels);
+        Shader.SetGlobalTexture(_mipID, camOutput);
     }
     
     // main function to create mipmaps
     void Make(RenderTexture rt, int miplevel)
     {
         Texture2D copy = RTtoTex2D(rt);
-        Shader.SetGlobalTexture(_mipID, copy);
-        Shader.SetGlobalInteger(_mipLevelID, mipLvls);
-        // Texture2D buffer = new Texture2D( // write to this tex
-        //                         copy.width, 
-        //                         copy.height, 
-        //                         TextureFormat.RGBA32, 
-        //                         false, 
-        //                         true);
-        // Texture2D mip = new Texture2D( // source tex
-        //                         copy.width, 
-        //                         copy.height, 
-        //                         TextureFormat.RGBA32, 
-        //                         false, 
-        //                         true);
+        mipmapKernel.SetFloat("Resolution", camOutput.width);
+        mipmapKernel.SetTexture(0, "Result", camOutput);
+        mipmapKernel.Dispatch(
+            0, 
+            camOutput.width / 8, 
+            camOutput.height / 8, 
+            1
+        );
         
-        // _dst = (Texture2D)(Shader.GetGlobalTexture(_mipID));
-        // copy original render texture
-        // Graphics.CopyTexture(copy, mip);
-        // _dst = buffer;
-        // return;
-
-        // // downsample
-        // for (int k = 1; k < miplevel; k++)
-        // {
-        //     // finer mipmap as source
-        //     mip = new Texture2D(
-        //         copy.width >> k - 1, 
-        //         copy.height >> k - 1,
-        //         TextureFormat.RGBA32, 
-        //         false, 
-        //         true);
-        //     
-        //     Graphics.CopyTexture(buffer, mip);
-        //     // Graphics.Blit(src, dst);
-        //     // destination texture
-        //     buffer = new Texture2D(
-        //             copy.width >> k, 
-        //             copy.height >> k, 
-        //             TextureFormat.RGBA32, 
-        //             false, 
-        //             true);
-// 
-        //     // bind textures to shader
-        //     Shader.SetGlobalTexture(_dstID, buffer);
-        //     Shader.SetGlobalTexture(_mipID, mip);
-// 
-        //     // check in inspector
-        //     _dst = buffer;
-        //     _mip = mip;
-        //     
-        //     // get processed texture from shader
-        //     buffer = (Texture2D)(Shader.GetGlobalTexture(_mipID));
-        // }
     }
     
     // convert render texture to texture2D
@@ -99,5 +67,13 @@ public class Mipmap : MonoBehaviour
         outputTex.Apply();
         
         return outputTex;
+    }
+
+    private void OnGUI()
+    {
+        if (GUI.Button(new Rect(35, 25, 150, 50), "Capture"))
+        {
+            Capture();
+        }
     }
 }
