@@ -13,7 +13,7 @@ void MipmapKernel (uint3 id : SV_DispatchThreadID)
 {
     int2 intUV = id.xy << 1;
     float2 tc = intUV / Resolution;
-    float tcf = -0.5f;
+    float tcf = 0.5f;
 
     float4 color = float4(0, 0, 0, 0);
     for(int k = 0 ; k < 4 ; k++)
