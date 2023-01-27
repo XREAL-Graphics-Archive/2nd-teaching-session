@@ -1,34 +1,20 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class Mipmap : MonoBehaviour
 {
-    // apply in inspector
-    // [SerializeField] Material mipmapMat;
-    [SerializeField] Camera captureCam;
-    [SerializeField] ComputeShader mipmapKernel;
+    [SerializeField] Camera captureCam; // cam that outputs to render texture
+    [SerializeField] ComputeShader mipmapKernel; // mipmap kernel to dispatch
     [SerializeField] [Range(0, 7)] int mipLevels = 0; // max mip levels
-    [SerializeField] bool mipEnabled = true;
-    
+
     RenderTexture camOutput; // camera output, the image to render
     
     RenderTexture writeBuffer; // texture to write in compute shader
-    int Resolution;
+    int Resolution; // texture resolution, bind to shader
 
     // shader property id
     private static int _mipID = Shader.PropertyToID("_MIP");
-    // private static int _renderTexID = Shader.PropertyToID("_RenderTex");
-    // private static int _dstID = Shader.PropertyToID("_DST");
-    // private static int _mipLevelID = Shader.PropertyToID("_MipLevels");
-    // private static int _MipEnabled = Shader.PropertyToID("_MipEnabled");
 
-    // member variables for debugging
-    [Header("Debug Params")]
-    [SerializeField] Texture2D _dst;
-    [SerializeField] Texture2D _mip;
-
+    // create render textures
     private void Awake()
     {
         camOutput = new RenderTexture(1024, 1024, 24);
@@ -37,6 +23,8 @@ public class Mipmap : MonoBehaviour
 
         captureCam.targetTexture = camOutput;
         Resolution = camOutput.width;
+        
+        Capture();
     }
 
     // event function to take picture
@@ -57,14 +45,13 @@ public class Mipmap : MonoBehaviour
             int mipResolution = Resolution >> k;
             if (mipResolution <= 0) break; // break at max possible mip level
             
+            // render texture to write
             writeBuffer = new RenderTexture(mipResolution, mipResolution, 24);
             writeBuffer.enableRandomWrite = true;
             writeBuffer.Create();
-            
-            Debug.Log("readSourceTx: " + readSourceTx.width + " * " + readSourceTx.height
-            + ", writeBuffer: " + writeBuffer.width + " * " + writeBuffer.height);
-            
-            mipmapKernel.SetFloat("Resolution", readSourceTx.width * 1.0f); // float to convert tc from int to float
+
+            // dispatch compute shader
+            mipmapKernel.SetFloat("Resolution", readSourceTx.width * 1.0f); // texture resolution
             mipmapKernel.SetTexture(0, "_ReadSourceTx", readSourceTx); // texture to read from
             mipmapKernel.SetTexture(0, "Result", writeBuffer); // texture to write
             mipmapKernel.Dispatch(
@@ -74,6 +61,7 @@ public class Mipmap : MonoBehaviour
                 1
             );
 
+            // save output for next iteration
             readSourceTx = RTtoTex2D(writeBuffer);
         }
     }
