@@ -1,4 +1,7 @@
 # Textures
+
+** *All scenes are recommended in **Full HD (1920 x 1080)*** **
+
 ### 1. Mask Textures
 <img width="1020" alt="maskfix" src="https://user-images.githubusercontent.com/61895947/215018391-b9d511e7-a810-4bb1-b7e8-0b365ca5f416.png">
 
@@ -13,7 +16,14 @@
 *Texture is mapped to zx plane.*
 
 ### 5. Mipmap Simulator
-![mipsim](https://user-images.githubusercontent.com/61895947/215003782-64886c0c-3de3-4d89-b1ed-f50bfde1988f.gif)
+Mip Level 0|Mip Level 3
+:-------------------------:|:-------------------------:
+<img width="625" alt="mip-0" src="https://user-images.githubusercontent.com/61895947/215039803-45f307dc-6dff-4db0-a28b-08c844082aa0.png">|<img width="625" alt="mip-3" src="https://user-images.githubusercontent.com/61895947/215039836-9c9b5823-4e18-469d-a205-03ff6a78a8b5.png">
+
+
+Mip Level 4|Mip Level 6
+:-------------------------:|:-------------------------:
+<img width="625" alt="mip-4" src="https://user-images.githubusercontent.com/61895947/215039945-eca73a01-02e3-48bf-a10b-05dc4282049f.png">|<img width="625" alt="mip-6" src="https://user-images.githubusercontent.com/61895947/215039968-7d755098-8c0a-4202-983d-94fa6af61244.png">
 
 ### 6. Aliasing Example
 ![aliasing](https://user-images.githubusercontent.com/61895947/215004033-47d03a05-4c81-42b8-8220-2147356dc8b3.gif)
