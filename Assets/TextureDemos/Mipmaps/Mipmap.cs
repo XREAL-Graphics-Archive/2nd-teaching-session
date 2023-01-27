@@ -64,7 +64,7 @@ public class Mipmap : MonoBehaviour
             Debug.Log("readSourceTx: " + readSourceTx.width + " * " + readSourceTx.height
             + ", writeBuffer: " + writeBuffer.width + " * " + writeBuffer.height);
             
-            mipmapKernel.SetFloat("Resolution", Resolution * 1.0f); // float to convert tc from int to float
+            mipmapKernel.SetFloat("Resolution", readSourceTx.width * 1.0f); // float to convert tc from int to float
             mipmapKernel.SetTexture(0, "_ReadSourceTx", readSourceTx); // texture to read from
             mipmapKernel.SetTexture(0, "Result", writeBuffer); // texture to write
             mipmapKernel.Dispatch(
