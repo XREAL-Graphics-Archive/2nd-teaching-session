@@ -1,4 +1,4 @@
-Shader "Aliasing"
+Shader "Mipmaps/Aliasing"
 {
     SubShader
     {
@@ -37,6 +37,7 @@ Shader "Aliasing"
                 v2f o;
                 o.vertex = TransformObjectToHClip(v.vertex);
                 o.uv = v.uv * _MIP_ST.xy + _MIP_ST.zw;
+                o.uv.x += _Time.x * 0.1f;
                 return o;
             }
 

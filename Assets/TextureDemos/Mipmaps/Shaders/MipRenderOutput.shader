@@ -1,4 +1,4 @@
-Shader "MipmapSimulator"
+Shader "Mipmaps/MipRenderOutput"
 {
     SubShader
     {
