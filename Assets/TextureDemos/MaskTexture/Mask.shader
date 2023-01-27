@@ -2,10 +2,10 @@ Shader "URPTraining/MaskTexture"
 {
     Properties
     {
-        _MainTex ("Texture", 2D) = "white" {}
-        _MainTex2 ("Texture", 2D) = "white" {}
+        _MainTex ("Texture 1", 2D) = "white" {}
+        _MainTex2 ("Texture 2", 2D) = "white" {}
         
-        _MaskTex ("Mask", 2D) = "white" {}
+        _MaskTex ("Mask Texture", 2D) = "white" {}
     }
     SubShader
     {
@@ -46,7 +46,7 @@ Shader "URPTraining/MaskTexture"
             Texture2D _MaskTex;
             SamplerState sampler_MainTex;
             float4 _MainTex_ST;
-            float4 _MainTex_ST2;
+            float4 _MainTex2_ST;
             float4 _MaskTex_ST;
 
             VertexOutput vert(VertexInput v)
@@ -54,7 +54,7 @@ Shader "URPTraining/MaskTexture"
                 VertexOutput o;
                 o.vertex = TransformObjectToHClip(v.vertex.xyz);
                 o.uv = v.uv * _MainTex_ST.xy + _MainTex_ST.zw;
-                o.uv2 = v.uv * _MainTex_ST2.xy + _MainTex_ST2.zw;
+                o.uv2 = v.uv * _MainTex2_ST.xy + _MainTex2_ST.zw;
                 return o;
             }
 
@@ -64,7 +64,7 @@ Shader "URPTraining/MaskTexture"
                 float4 color2 = _MainTex2.Sample(sampler_MainTex, i.uv2);
                 float4 mask = _MaskTex.Sample(sampler_MainTex, i.uv);
 
-                float4 f = lerp(color, color2, mask.r);
+                float4 f = lerp(color, color2, mask.g);
                 return f;
             }
             ENDHLSL
