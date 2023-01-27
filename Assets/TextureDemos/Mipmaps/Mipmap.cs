@@ -4,8 +4,10 @@ public class Mipmap : MonoBehaviour
 {
     [SerializeField] Camera captureCam; // cam that outputs to render texture
     [SerializeField] ComputeShader mipmapKernel; // mipmap kernel to dispatch
-    [SerializeField] [Range(0, 7)] int mipLevels = 0; // max mip levels
+    int mipLevels = 0; // max mip levels
 
+    private GUIStyle style;
+    private string GUIMipLevel;
     RenderTexture camOutput; // camera output, the image to render
     
     RenderTexture writeBuffer; // texture to write in compute shader
@@ -23,7 +25,13 @@ public class Mipmap : MonoBehaviour
 
         captureCam.targetTexture = camOutput;
         Resolution = camOutput.width;
-        
+
+        mipLevels = 0;
+
+        style = new GUIStyle();
+        style.fontSize = 50;
+        style.normal.textColor = Color.black;
+
         Capture();
     }
 
@@ -80,9 +88,18 @@ public class Mipmap : MonoBehaviour
 
     private void OnGUI()
     {
-        if (GUI.Button(new Rect(35, 25, 150, 50), "Capture"))
+        if (GUI.Button(new Rect(340, 90, 30, 30), "+") && mipLevels < 7)
         {
+            mipLevels++;
             Capture();
         }
+        if (GUI.Button(new Rect(340, 130, 30, 30), "-") && mipLevels > 0)
+        {
+            mipLevels--;
+            Capture();
+        }
+        
+        GUIMipLevel = "Mip Level  " + mipLevels;
+        GUI.Label(new Rect(35, 100, 100, 50), GUIMipLevel, style);
     }
 }
