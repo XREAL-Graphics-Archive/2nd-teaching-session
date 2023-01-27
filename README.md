@@ -1,6 +1,6 @@
 # Textures
 ### 1. Mask Textures
-<img width="1020" alt="mask" src="https://user-images.githubusercontent.com/61895947/215004197-d88cd838-3b25-4668-b984-71b08354f69b.png">
+<img width="1020" alt="maskfix" src="https://user-images.githubusercontent.com/61895947/215018391-b9d511e7-a810-4bb1-b7e8-0b365ca5f416.png">
 
 ### 2. UV Animation
 ![uvanim](https://user-images.githubusercontent.com/61895947/215002626-42d35444-a986-4f6d-a406-4d6a18cb59ca.gif)
