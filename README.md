@@ -26,5 +26,5 @@ Mip Level 4|Mip Level 6
 <img width="625" alt="mip-4" src="https://user-images.githubusercontent.com/61895947/215039945-eca73a01-02e3-48bf-a10b-05dc4282049f.png">|<img width="625" alt="mip-6" src="https://user-images.githubusercontent.com/61895947/215039968-7d755098-8c0a-4202-983d-94fa6af61244.png">
 
 ### 6. Aliasing Example
-![aliasing](https://user-images.githubusercontent.com/61895947/215004033-47d03a05-4c81-42b8-8220-2147356dc8b3.gif)
+<img width="1000" alt="aliasing" src="https://user-images.githubusercontent.com/61895947/215995913-85309d59-4b68-4ec9-9f3a-e5dd60062bf1.png">
 *You can also check what happens by changing the resolution in game view.*
