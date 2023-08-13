@@ -5,16 +5,26 @@ using UnityEngine.Rendering.Universal;
 public class ProceduralMipmapRenderPass : ScriptableRenderPass
 {
     private string profilerTag;
+    private ProceduralMipmapRendererFeature.MipmapSettings settings;
 
     private RenderTargetIdentifier cameraColorTargetIdentifier;
     private int mipLevel;
     private ComputeShader computeShader;
     
-    public ProceduralMipmapRenderPass(MipmapSettings passSettings, string profilerTag)
+    RenderTargetIdentifier source;
+    RenderTargetIdentifier destination;
+    int temporaryRTId = Shader.PropertyToID("_TempRT");
+
+    int sourceId;
+    int destinationId;
+    bool isSourceAndDestinationSameTarget;
+    
+    public ProceduralMipmapRenderPass(ProceduralMipmapRendererFeature.MipmapSettings passSettings, string profilerTag)
     {
         renderPassEvent = passSettings.renderPassEvent;
 
         this.profilerTag = profilerTag;
+        settings = passSettings;
         mipLevel = passSettings.mipLevel;
         computeShader = passSettings.computeShader;
     }
@@ -31,6 +41,43 @@ public class ProceduralMipmapRenderPass : ScriptableRenderPass
     // The render pipeline will ensure target setup and clearing happens in a performant manner.
     public override void OnCameraSetup(CommandBuffer cmd, ref RenderingData renderingData)
     {
+        RenderTextureDescriptor blitTargetDescriptor = renderingData.cameraData.cameraTargetDescriptor;
+        blitTargetDescriptor.depthBufferBits = 0;
+
+        isSourceAndDestinationSameTarget = settings.sourceType == settings.destinationType &&
+                                           (settings.sourceType == ProceduralMipmapRendererFeature.BufferType.CameraColor || settings.sourceTextureId == settings.destinationTextureId);
+
+        var renderer = renderingData.cameraData.renderer;
+
+        if (settings.sourceType == ProceduralMipmapRendererFeature.BufferType.CameraColor)
+        {
+            sourceId = -1;
+            source = renderer.cameraColorTarget;
+        }
+        else
+        {
+            sourceId = Shader.PropertyToID(settings.sourceTextureId);
+            cmd.GetTemporaryRT(sourceId, blitTargetDescriptor, FilterMode.Bilinear);
+            source = new RenderTargetIdentifier(sourceId);
+        }
+
+        if (isSourceAndDestinationSameTarget)
+        {
+            destinationId = temporaryRTId;
+            cmd.GetTemporaryRT(destinationId, blitTargetDescriptor, FilterMode.Bilinear);
+            destination = new RenderTargetIdentifier(destinationId);
+        }
+        else if (settings.destinationType == ProceduralMipmapRendererFeature.BufferType.CameraColor)
+        {
+            destinationId = -1;
+            destination = renderer.cameraColorTarget;
+        }
+        else
+        {
+            destinationId = Shader.PropertyToID(settings.destinationTextureId);
+            cmd.GetTemporaryRT(destinationId, blitTargetDescriptor, FilterMode.Bilinear);
+            destination = new RenderTargetIdentifier(destinationId);
+        }
     }
 
     // Here you can implement the rendering logic.
@@ -42,18 +89,32 @@ public class ProceduralMipmapRenderPass : ScriptableRenderPass
         CommandBuffer cmd = CommandBufferPool.Get();
         cmd.Clear();
 
-        if (mipLevel == 0)
+        using (new ProfilingScope(cmd, new ProfilingSampler("Mip Pass")))
         {
-            // Blit(cmd, rendertexture, cameraColorTargetIdentifier);
+            if (mipLevel == 0)
+            {
+                // Blitter.BlitCameraTexture(cmd, cameraColorTargetIdentifier, depthStoreAction);
+                // Blit(cmd, rendertexture, cameraColorTargetIdentifier);
+            }
+            else
+            {
+                //Blit(cmd, src, cameraColorTargetIdentifier);
+            }
         }
-        else
-        {
-            //Blit(cmd, src, cameraColorTargetIdentifier);
-        }
+        
+        context.ExecuteCommandBuffer(cmd);
+        
+        cmd.Clear();
+        CommandBufferPool.Release(cmd);
     }
 
     // Cleanup any allocated resources that were created during the execution of this render pass.
     public override void OnCameraCleanup(CommandBuffer cmd)
     {
+        if (destinationId != -1)
+            cmd.ReleaseTemporaryRT(destinationId);
+
+        if (source == destination && sourceId != -1)
+            cmd.ReleaseTemporaryRT(sourceId);
     }
 }

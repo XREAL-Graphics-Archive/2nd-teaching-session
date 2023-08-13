@@ -4,6 +4,29 @@ using UnityEngine.Rendering.Universal;
 
 public class ProceduralMipmapRendererFeature : ScriptableRendererFeature
 {
+    public enum BufferType
+    {
+        CameraColor,
+        Custom 
+    }
+    
+    [System.Serializable]
+    public class MipmapSettings
+    {
+        public RenderPassEvent renderPassEvent = RenderPassEvent.AfterRenderingTransparents;
+        public ComputeShader computeShader;
+
+        [Range(0, 7)]
+        public int mipLevel;
+    
+        public Material blitMaterial = null;
+        public int blitMaterialPassIndex = -1;
+        public BufferType sourceType      = BufferType.CameraColor;
+        public BufferType destinationType = BufferType.CameraColor;
+        public string sourceTextureId = "_SourceTexture";
+        public string destinationTextureId = "_DestinationTexture";
+    }
+
     ProceduralMipmapRenderPass scriptablePass;
 
     public MipmapSettings passSettings = new MipmapSettings();
@@ -24,14 +47,4 @@ public class ProceduralMipmapRendererFeature : ScriptableRendererFeature
         
         renderer.EnqueuePass(scriptablePass);
     }
-}
-
-[System.Serializable]
-public class MipmapSettings
-{
-    public RenderPassEvent renderPassEvent = RenderPassEvent.AfterRenderingTransparents;
-    public ComputeShader computeShader;
-
-    [Range(0, 7)]
-    public int mipLevel;
 }

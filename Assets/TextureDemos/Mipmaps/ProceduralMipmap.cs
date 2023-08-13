@@ -15,7 +15,7 @@ public class ProceduralMipmap : MonoBehaviour
             enableRandomWrite = true
         };
         outputRT.Create();
-        
+
         mainCamera = Camera.main;
         mainCamera.targetTexture = outputRT;
     }

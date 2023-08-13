@@ -1,8 +1,11 @@
-Shader "URPTraining/PlanarMapping"
+Shader "Custom/Triplanar"
 {
     Properties
     {
         _MainTex ("Texture", 2D) = "white" {}
+        
+        [KeywordEnum(XY, XZ, YZ, Triplanar)] _MappingPlane ("Mapping Plane", Float) = 1
+        _BlendSharpness("Blend Sharpness", Range(0, 5)) = 1.0
     }
     SubShader
     {
@@ -21,13 +24,18 @@ Shader "URPTraining/PlanarMapping"
 
             #pragma prefer_hlslcc gles
             #pragma exclude_renderers d3d11_9x
+            
             #pragma vertex vert
             #pragma fragment frag
-            #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
 
+            #pragma shader_feature _MAPPINGPLANE_XY _MAPPINGPLANE_XZ _MAPPINGPLANE_YZ _MAPPINGPLANE_TRIPLANAR
+            
+            #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
+            
             struct VertexInput
             {
                 float4 vertex: POSITION;
+                float3 normal: NORMAL;
                 float2 uv : TEXCOORD0;
             };
 
@@ -35,38 +43,54 @@ Shader "URPTraining/PlanarMapping"
             {
                 float4 vertex : SV_POSITION;
                 float2 uv : TEXCOORD0;
-                float3 worldPos : TEXCOORD1;
-                float2 worlduv: TEXCOORD2;
+                float3 worldPos : TEXCOORD2;
+                float3 worldNormal: TEXCOORD3;
             };
 
             Texture2D _MainTex;
             SamplerState sampler_MainTex;
-            float4 _MainTex_ST;
+            float _BlendSharpness;
 
             VertexOutput vert(VertexInput v)
             {
                 VertexOutput o;
                 o.vertex = TransformObjectToHClip(v.vertex.xyz);
-                o.uv = v.uv * _MainTex_ST.xy + _MainTex_ST.zw;
+                o.uv = v.uv;
                 o.worldPos = TransformObjectToWorld(v.vertex.xyz);
-                o.worlduv = float2(o.worldPos.x, o.worldPos.z) * _MainTex_ST.xy + _MainTex_ST.zw;
+                o.worldNormal = TransformObjectToWorldNormal(v.normal);
                 return o;
             }
 
             half4 frag(VertexOutput i): SV_Target
             {
-                // float4 color = _MainTex.Sample(sampler_MainTex, i.uv);
+                // color to return
+                half4 color = half4(0,0,0,1);
 
-                // yz
-                // half4 c1 = _MainTex.Sample(sampler_MainTex, i.worldPos.yz);
+                #if defined(_MAPPINGPLANE_XY)
+                color = _MainTex.Sample(sampler_MainTex, i.worldPos.xy);
 
-                // xz
-                half4 c2 = _MainTex.Sample(sampler_MainTex, i.worlduv);
-
-                // xy
-                // half4 c3 = _MainTex.Sample(sampler_MainTex, i.worldPos.xy);
+                #elif defined(_MAPPINGPLANE_XZ)
+                color = _MainTex.Sample(sampler_MainTex, i.worldPos.xz);
                 
-                return c2;
+                #elif defined(_MAPPINGPLANE_YZ)
+                color = _MainTex.Sample(sampler_MainTex, i.worldPos.yz);
+
+                #elif defined(_MAPPINGPLANE_TRIPLANAR)
+                // sample for each projection plane
+			    half3 xAlbedo = _MainTex.Sample(sampler_MainTex, i.worldPos.yz);
+                half3 yAlbedo = _MainTex.Sample(sampler_MainTex, i.worldPos.xz);
+			    half3 zAlbedo = _MainTex.Sample(sampler_MainTex, i.worldPos.xy);
+
+                // calculate weights and normalize
+                half3 weight = pow(abs(i.worldNormal), _BlendSharpness);
+                weight /= weight.x + weight.y + weight.z;
+
+                // blend colors
+                color.rgb = xAlbedo * weight.x + yAlbedo * weight.y + zAlbedo * weight.z;
+
+                #endif
+                
+                return color;
             }
             ENDHLSL
         }
